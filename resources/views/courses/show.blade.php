@@ -63,23 +63,15 @@
 
             {{-- ================= LESSON MODAL ================= --}}
             <div id="lessonModal"
-                class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4">
+                class="fixed inset-0 z-50 hidden flex-col bg-black">
 
-                <div class="bg-white rounded-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
-
-                    <div class="flex items-center justify-between border-b p-4">
-                        <h3 id="lessonTitle" class="text-xl font-bold"></h3>
-
-                        <button onclick="closeLesson()"
-                            class="text-gray-500 hover:text-black text-xl">
-                            ✕
-                        </button>
-                    </div>
-
-                    <div id="lessonContent"
-                        class="overflow-y-auto p-6 flex-1"></div>
-
+                <div class="flex justify-between items-center p-4 text-white bg-black">
+                    <h3 id="lessonTitle"></h3>
+                    <button onclick="closeLesson()">✕</button>
                 </div>
+
+                <div id="lessonContent" class="flex-1"></div>
+
             </div>
 
             {{-- ================= PAYMENT MODAL ================= --}}
@@ -332,7 +324,9 @@
                     @if($lesson->is_preview || $hasAccess)
                     onclick="openLesson(
                     '{{ $lesson->title }}',
-                    '{{ asset('storage/'.$lesson->file_path) }}',
+                    '{{ Str::startsWith($lesson->file_path, ['http://','https://']) 
+    ? $lesson->file_path 
+    : asset('storage/'.$lesson->file_path) }}',
                     '{{ $lesson->type }}'
                     )"
                     @else
@@ -380,29 +374,38 @@
 
             let html = ''
 
+            // 🎬 VIDEO FILE
             if (type === 'video') {
                 html = `
-<video controls class="w-full rounded-lg">
-<source src="${file}" type="video/mp4">
+<video controls autoplay class="w-screen h-screen object-contain bg-black">
+    <source src="${file}" type="video/mp4">
 </video>`
             }
 
+            // 📺 YOUTUBE
+            if (type === 'youtube') {
+
+                // convert link watch → embed
+                const videoId = file.split('v=')[1]
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`
+
+                html = `
+<iframe 
+    src="${embedUrl}" 
+    class="w-screen h-screen"
+    frameborder="0"
+    allowfullscreen>
+</iframe>`
+            }
+
+            // 📄 PDF
             if (type === 'pdf') {
-                html = `<iframe src="${file}" class="w-full h-[500px]"></iframe>`
+                html = `<iframe src="${file}" class="w-screen h-screen"></iframe>`
             }
 
+            // 🖼 IMAGE
             if (type === 'image') {
-                html = `<img src="${file}" class="w-full rounded-lg">`
-            }
-
-            if (type === 'code') {
-                fetch(file)
-                    .then(r => r.text())
-                    .then(data => {
-                        document.getElementById('lessonContent').innerHTML =
-                            `<pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto">${data}</pre>`
-                    })
-                return
+                html = `<img src="${file}" class="w-screen h-screen object-contain bg-black">`
             }
 
             document.getElementById('lessonContent').innerHTML = html
