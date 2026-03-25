@@ -87,9 +87,9 @@
                                 <div class="font-medium text-gray-800">
                                     {{ $r->title }}
                                 </div>
-                                <div class="text-xs text-gray-500">
-                                    {{ $r->file_path }}
-                                </div>
+                                <div class="text-xs text-gray-500 max-w-xs truncate" title="{{ $r->file_path }}">
+    {{ $r->file_path }}
+</div>
                             </td>
 
                             {{-- Type --}}

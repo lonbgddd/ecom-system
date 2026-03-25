@@ -385,18 +385,29 @@
             // 📺 YOUTUBE
             if (type === 'youtube') {
 
-                // convert link watch → embed
-                const videoId = file.split('v=')[1]
-                const embedUrl = `https://www.youtube.com/embed/${videoId}`
+    let videoId = ''
 
-                html = `
+    // dạng watch?v=
+    if (file.includes('watch?v=')) {
+        videoId = file.split('v=')[1].split('&')[0]
+    }
+
+    // dạng youtu.be/
+    else if (file.includes('youtu.be/')) {
+        videoId = file.split('youtu.be/')[1].split('?')[0]
+    }
+
+    const embedUrl = `https://www.youtube.com/embed/${videoId}`
+
+    html = `
 <iframe 
     src="${embedUrl}" 
     class="w-screen h-screen"
     frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen>
 </iframe>`
-            }
+}
 
             // 📄 PDF
             if (type === 'pdf') {
