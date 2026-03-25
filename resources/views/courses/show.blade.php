@@ -422,11 +422,16 @@
             document.getElementById('lessonContent').innerHTML = html
         }
 
-        function closeLesson() {
-            document.body.style.overflow = 'auto'
-            document.getElementById('lessonModal').classList.add('hidden')
-        }
+  function closeLesson() {
+    document.body.style.overflow = 'auto'
 
+    const modal = document.getElementById('lessonModal')
+    modal.classList.add('hidden')
+
+    // 🔥 QUAN TRỌNG: xoá player
+    const content = document.getElementById('lessonContent')
+    content.innerHTML = ''
+}
         function openBuyModal() {
             document.body.style.overflow = 'hidden'
             document.getElementById('buyModal').classList.remove('hidden')
