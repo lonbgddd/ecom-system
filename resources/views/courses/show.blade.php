@@ -322,13 +322,17 @@
                     class="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
 
                     @if($lesson->is_preview || $hasAccess)
-                    onclick="openLesson(
-                    '{{ $lesson->title }}',
-                    '{{ Str::startsWith($lesson->file_path, ['http://','https://']) 
-    ? $lesson->file_path 
-    : asset('storage/'.$lesson->file_path) }}',
-                    '{{ $lesson->type }}'
-                    )"
+                    onclick='openLesson(
+"{{ $lesson->title }}",
+"{{ $lesson->type === "video" 
+    ? route("video.stream", $lesson->id)
+    : ($lesson->type === "pdf" 
+        ? route("pdf.view", $lesson->id)
+        : (Str::startsWith($lesson->file_path, ["http://","https://"]) 
+            ? $lesson->file_path 
+            : asset("storage/".$lesson->file_path))) }}",
+"{{ $lesson->type }}"
+)'
                     @else
                     onclick="openBuyModal()"
                     @endif
