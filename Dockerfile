@@ -49,18 +49,17 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    postgresql-dev  
 
-# PHP extensions (KHÔNG có pgsql)
 RUN docker-php-ext-install \
     pdo \
-    pdo_mysql \
+    pdo_pgsql \
     mbstring \
     exif \
     pcntl \
     bcmath \
     gd
-
 WORKDIR /var/www
 
 # Copy source + vendor + build assets
@@ -79,4 +78,7 @@ php artisan cache:clear && \
 php artisan config:cache && \
 php artisan route:cache && \
 php artisan view:cache && \
+php artisan migrate --force && \
+php artisan db:seed --force &&\
+php artisan storage:link && \
 php -S 0.0.0.0:8000 -t public"
