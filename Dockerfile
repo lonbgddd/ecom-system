@@ -72,10 +72,10 @@ COPY --from=frontend /app/public/build /var/www/public/build
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-# Laravel optimize (không chạy nếu thiếu ENV → dùng || true)
-RUN php artisan config:cache || true \
- && php artisan route:cache || true \
- && php artisan view:cache || true
+RUN php artisan config:clear && \
+php artisan cache:clear && \
+php artisan config:cache && \
+php -S 0.0.0.0:$PORT -t public
 
 EXPOSE 8000
 
