@@ -5,7 +5,6 @@ FROM composer:2 AS vendor
 
 WORKDIR /app
 
-# Chỉ copy file cần để tận dụng cache
 COPY composer.json composer.lock ./
 
 RUN composer install \
@@ -14,8 +13,8 @@ RUN composer install \
     --no-autoloader \
     --prefer-dist
 
-# Copy toàn bộ source rồi dump autoload
 COPY . .
+
 RUN composer dump-autoload --optimize
 
 
@@ -40,7 +39,7 @@ RUN npm run build
 # =========================
 FROM php:8.2-fpm-alpine
 
-# Cài extension cần thiết
+# Cài system packages
 RUN apk add --no-cache \
     bash \
     curl \
@@ -52,6 +51,7 @@ RUN apk add --no-cache \
     zip \
     unzip
 
+# PHP extensions (KHÔNG có pgsql)
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
@@ -61,7 +61,6 @@ RUN docker-php-ext-install \
     bcmath \
     gd
 
-# Set working dir
 WORKDIR /var/www
 
 # Copy source + vendor + build assets
@@ -72,11 +71,12 @@ COPY --from=frontend /app/public/build /var/www/public/build
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-RUN php artisan config:clear && \
-php artisan cache:clear && \
-php artisan config:cache && \
-php -S 0.0.0.0:$PORT -t public
-
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+# Start (cache đúng thời điểm runtime)
+CMD sh -c "php artisan config:clear && \
+php artisan cache:clear && \
+php artisan config:cache && \
+php artisan route:cache && \
+php artisan view:cache && \
+php -S 0.0.0.0:8000 -t public"
